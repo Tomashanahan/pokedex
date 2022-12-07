@@ -16,6 +16,16 @@ export class PokemonService {
     private readonly pokemonModel: Model<Pokemon>,
   ) {}
 
+  async implementSeed(pokemons: CreatePokemonDto[]) {
+    try {
+      await this.pokemonModel.deleteMany(); // to delete all in the db to prevent duplcates
+      const pokemon = await this.pokemonModel.insertMany(pokemons);
+      return pokemon;
+    } catch (error) {
+      this.handleExeption(error);
+    }
+  }
+
   async create(createPokemonDto: CreatePokemonDto) {
     try {
       const pokemon = await this.pokemonModel.create(createPokemonDto);
