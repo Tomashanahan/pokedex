@@ -7,22 +7,26 @@ import { AxiosAdapter } from '../common/adapters/axios.adapter';
 export class SeedService {
   constructor(
     private readonly pokemonService: PokemonService,
-    private readonly httl: AxiosAdapter,
+    private readonly http: AxiosAdapter,
   ) {}
 
   async executeSeed() {
-    const data = await this.httl.get<PokeResponse>(
-      'https://pokeapi.co/api/v2/pokemon?limit=650',
-    );
+    try {
+      const data = await this.http.get<PokeResponse>(
+        'https://pokeapi.co/api/v2/pokemon?limit=650',
+      );
 
-    const pokemons: { name: string; no: number }[] = [];
-    data.results.forEach(({ name, url }) => {
-      const urlSegments = url.split('/');
-      const no = +urlSegments[urlSegments.length - 2];
-      pokemons.push({ name, no });
-    });
+      const pokemons: { name: string; no: number }[] = [];
+      data.results.forEach(({ name, url }) => {
+        const urlSegments = url.split('/');
+        const no = +urlSegments[urlSegments.length - 2];
+        pokemons.push({ name, no });
+      });
 
-    this.pokemonService.implementSeed(pokemons);
-    return 'seed run correctly';
+      this.pokemonService.implementSeed(pokemons);
+      return 'seed run correctly';
+    } catch (error) {
+      throw new Error('no se que paso');
+    }
   }
 }
