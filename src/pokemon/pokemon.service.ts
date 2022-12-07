@@ -8,6 +8,7 @@ import { Model } from 'mongoose';
 import { CreatePokemonDto } from './dto/create-pokemon.dto';
 import { UpdatePokemonDto } from './dto/update-pokemon.dto';
 import { Pokemon } from './entities/pokemon.entity';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class PokemonService {
@@ -35,7 +36,7 @@ export class PokemonService {
     }
   }
 
-  private handleExeption(error) {
+  private handleExeption(error: { code: number; keyValue: any }) {
     if (error.code === 11000) {
       throw new BadRequestException(
         `Pokemon exist in the database ${JSON.stringify(error.keyValue)}`,
@@ -46,8 +47,14 @@ export class PokemonService {
     );
   }
 
-  findAll() {
-    return this.pokemonModel.find();
+  findAll(paginationDto: PaginationDto) {
+    const { limit = 10, offset = 0 } = paginationDto;
+    return this.pokemonModel
+      .find()
+      .limit(limit)
+      .skip(offset)
+      .sort({ no: 1 })
+      .select('-__v'); // this line is to not include the value
   }
 
   async findOne(term: string) {
